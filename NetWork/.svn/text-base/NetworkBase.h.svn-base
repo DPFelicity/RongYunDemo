@@ -1,0 +1,39 @@
+//
+//  NetworkBase.h
+//  IHKHome
+//
+//  Created by calvin on 15/6/11.
+//  Copyright (c) 2015年 calvin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "NetworkDefine.h"
+#import "AFNetworking.h"
+#import "NetworkModel.h"
+#import "PostDataModel.h"
+
+@interface NetworkBase : NSObject
+
++ (NSString *)getKey;
+
++ (void)getRequestWithUrl:(NSString *)serverUrl
+                    paras:(NSMutableDictionary *)paras
+                  success:(void (^)(NetworkModel *model))success
+                     fail:(void (^)(NSError *error))fail;
+
++ (void)postDataWithUrl:(NSString *)serverUrl
+              withParas:(NSMutableDictionary *)paras
+           arrDataModel:(NSArray *)arrDataModel
+               progress:(void (^)(float currentProgress))progress
+                success:(void (^)(NetworkModel *model))success
+                   fail:(void (^)(NSError *error))fail;
+
++ (NSURLRequest *)getH5Request:(NSString *)requestUrl
+                     withParas:(NSString *)paras;
+
++ (NSString *)getH5Url:(NSString *)requestUrl;
+
++ (NSString *)formatCityName:(NSString *)cityName;
++ (NSString *)unformatCityName:(NSString *)cityName;
+
+@end

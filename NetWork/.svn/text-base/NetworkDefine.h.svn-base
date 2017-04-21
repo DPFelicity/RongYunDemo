@@ -1,0 +1,216 @@
+//
+//  UrlDefine.h
+//  IHKHome
+//
+//  Created by calvin on 15/6/11.
+//  Copyright (c) 2015年 calvin. All rights reserved.
+//
+
+#ifndef IHKHome_UrlDefine_h
+#define IHKHome_UrlDefine_h
+
+//#define kNetwork_Host   @"http://ihkhometest.ihk.cn"
+//#define kNetwork_Host     @"http://183.63.76.244:8081"
+//金龙的电脑服务器
+//#define kNetwork_Host   @"http://113.108.202.234:8081"
+//子维
+#define kNetwork_Host       @"http://172.16.8.102:8081"
+//#define kNetwork_Host       @"http://172.16.6.112:88"
+
+//#define kNetwork_Host   @"http://appadd.ihk.cn"
+
+#define kNetwork_HostApp    [kNetwork_Host stringByAppendingString:@"/ihkhome/app/"]
+#define kNetwork_HostWap    [kNetwork_Host stringByAppendingString:@"/ihkhome/wap/"]
+
+
+#define kNetwork_ResultCode                             @"10000"  //成功
+#define kNetwork_ResultCode_UKEY_ERROR                  @"10007"  //ukey失效
+#define kNetwork_ResultCode_PARAMS_ERROR                @"10008"  //参数信息异常
+#define kNetwork_ResultCode_QUERY_ERROR                 @"10009"  //读取信息异常
+#define kNetwork_ResultCode_REG_USER_ERROR              @"10010"  //注册用户名重复
+#define kNetwork_ResultCode_LOGIN_USER_ERROR            @"10011"  //帐号密码错误
+#define kNetwork_ResultCode_CAPTCHA_ERROR               @"10012"  //验证码错误
+#define kNetwork_ResultCode_USER_EMPTY                  @"10013"  //帐户不存在
+#define kNetwork_ResultCode_PHOTO_TYPE_ERROR            @"10014"  //图片格式异常
+#define kNetwork_ResultCode_PUSH_NOT_FIND_ERROR         @"10015"  //push不存在
+#define kNetwork_ResultCode_ACCESSORY_NOT_FIND_ERROR    @"10016"  //附件不存在
+#define kNetwork_ResultCode_ACCESSORY_TYPE_ERROR        @"10017"  //附件格式错误
+#define kNetwork_ResultCode_NO_PARAMS_VALUE             @"10018"  //参数值不存在
+#define kNetwork_ResultCode_MESSAGE_ERROR               @"10019"  //发送信息失败
+#define kNetwork_ResultCode_LOGIN_CHECK_NO              @"10020"  //您的帐号已在其它设备上登录
+#define kNetwork_ResultCode_USER_NOT_SALES              @"10021"  //该用户不是销售
+
+#define kNetwork_ResultCode_NOT_PARTNERS_SALES_MANAGE   @"10022"  //该用户不是合作伙伴负责人
+#define kNetwork_ResultCode_EXPIRED_HOUSE               @"10023"  //楼盘已过期或客户受不保护不能推荐
+#define kNetwork_ResultCode_NO_PARTNERS_SALES           @"10024"  //不存在有效的合作伙伴
+#define kNetwork_ResultCode_PHONE_ALREADY_REGISTER      @"10025"  //手机已经注册
+
+//错误提示
+#define kNetwork_Error_TipsTitle        @"温馨提示"
+#define kNetwork_Error_Network          @"网络连接错误"
+#define kNetwork_Error_LocationOFF      @"定位功能未打开"
+#define kNetwork_Error_LocationFail     @"定位失败，\n默认站点已设为：广州"
+#define kNetwork_Error_LocationNoFound  @"当前站点未开通，\n默认站点已设为：广州"
+#define kNetwork_Error_Request          @"请求服务器失败，请重新提交。"
+#define kNetwork_Error_Connect          @"服务器连接超时，请稍后重试。"
+#define kNetwork_Error_SmsSending       @"正在获取验证码"
+#define kNetwork_Error_SmsSendOK        @"验证码发送成功"
+
+//获取城市
+#define kNetwork_GetAllCity             [kNetwork_HostApp stringByAppendingString:@"city/getallcity.htm"]               //获取城市
+#define kNetwork_GetAboutUs             [kNetwork_HostApp stringByAppendingString:@"users/getaboutus.htm"]              //关于我们
+#define kNetwork_CheckUpdate            [kNetwork_HostApp stringByAppendingString:@"users/getupdatereminder.htm"]       //检查更新
+
+//用户接口
+#define kNetwork_SavePushToken          [kNetwork_HostApp stringByAppendingString:@"users/savePushToken.htm"]           //保存推送记录
+#define kNetwork_SendSms                [kNetwork_HostApp stringByAppendingString:@"users/sendSms.htm"]                 //发送短信
+#define kNetwork_Register               [kNetwork_HostApp stringByAppendingString:@"users/register.htm"]                //用户注册
+#define kNetwork_Login                  [kNetwork_HostApp stringByAppendingString:@"users/login.htm"]                   //用户登录
+#define kNetwork_Logout                 [kNetwork_HostApp stringByAppendingString:@"users/logout.htm"]                  //用户注销
+#define kNetwork_ForgetPwd              [kNetwork_HostApp stringByAppendingString:@"users/forgetpwd.htm"]               //忘记密码
+#define kNetwork_UpdatePassword         [kNetwork_HostApp stringByAppendingString:@"users/updatePassword.htm"]          //修改密码
+#define kNetwork_UpdateUserInfo         [kNetwork_HostApp stringByAppendingString:@"users/updateuserinfo.htm"]          //修改个人信息
+#define kNetwork_SubmitApprove          [kNetwork_HostApp stringByAppendingString:@"users/submitApprove.htm"]           //实名认证
+#define kNetwork_VerifyUser             [kNetwork_HostApp stringByAppendingString:@"users/verifyuser.htm"]              //验证用户是否被踢掉
+#define kNetwork_VerifyClause           [kNetwork_HostApp stringByAppendingString:@"users/verifyclause.htm"]            //协议接口
+#define kNetwork_VerifyClauseNew        [kNetwork_HostApp stringByAppendingString:@"users/verifyclauseNew.htm"]         //协议接口
+#define kNetwork_UpdatePushToken        [kNetwork_HostApp stringByAppendingString:@"users/updatePushToken.htm"]         //保存用户设置
+#define kNetwork_VerifyMachineNo        [kNetwork_HostApp stringByAppendingString:@"users/verifyMachineNo.htm"]         //重置机器号
+
+//项目接口
+#define kNetwork_GetAdvert              [kNetwork_HostApp stringByAppendingString:@"house/getadvert.htm"]               //获取城市所属广告图（首页）
+#define kNetwork_GetHomeHouse           [kNetwork_HostApp stringByAppendingString:@"house/gethomehouses.htm"]           //获取楼盘列表（首页）
+#define kNetwork_NewGetHomeHouses       [kNetwork_HostApp stringByAppendingString:@"house/newGetHomeHouses.htm"]        //获取楼盘列表（首页）(新)
+#define kNetwork_GetHouseList           [kNetwork_HostApp stringByAppendingString:@"house/gethouselist.htm"]            //查询楼盘列表（推荐客户或者查询楼盘用）
+#define kNetwork_GetHouseDetailed       [kNetwork_HostApp stringByAppendingString:@"house/gethousedetailed.htm"]        //获取楼盘详情页和图片
+#define kNetwork_PushCustomer           [kNetwork_HostApp stringByAppendingString:@"house/pushcustomerNew.htm"]         //推荐客户
+#define kNetwork_GetMySearchableHouse   [kNetwork_HostApp stringByAppendingString:@"house/getMySearchableHouse.htm"]    //已推荐客户统计（电商部身份），可搜索楼盘列表
+#define kNetwork_GetHouseIsExpired      [kNetwork_HostApp stringByAppendingString:@"house/gethouseisexpired.htm"]       //判断推荐项目是否过期
+#define kNetwork_GetHotHouses           [kNetwork_HostApp stringByAppendingString:@"house/getHotHouses.htm"]            //热门项目接口
+
+//钱包接口
+#define kNetwork_MyWallet               [kNetwork_HostApp stringByAppendingString:@"wallet/mywallet.htm"]               //我的钱包
+#define kNetwork_MyIncomeLog            [kNetwork_HostApp stringByAppendingString:@"wallet/myincomelog.htm"]            //收入记录
+#define kNetwork_MyWithdrawalsLog       [kNetwork_HostApp stringByAppendingString:@"wallet/mywithdrawalslog.htm"]       //提现记录
+#define kNetwork_MyBankCard             [kNetwork_HostApp stringByAppendingString:@"wallet/mybankcard.htm"]             //我的银行卡
+//#define kNetwork_GetBankCardType      [kNetwork_HostApp stringByAppendingString:@"wallet/getbankcardtype.htm"]        //银行卡类型
+#define kNetwork_BankCardQuery          [kNetwork_HostApp stringByAppendingString:@"wallet/bankcardquery.htm"]          //查询银行卡类型
+#define kNetwork_AddBankCard            [kNetwork_HostApp stringByAppendingString:@"wallet/addbankcard.htm"]            //添加银行卡
+#define kNetwork_ApplyWithdraw          [kNetwork_HostApp stringByAppendingString:@"wallet/applywithdraw.htm"]          //提现申请
+#define kNetwork_TeamPerformance        [kNetwork_HostApp stringByAppendingString:@"wallet/teamperformance.htm"]        //团队负责人身份-团队业绩
+#define kNetwork_TeamIncomeLog          [kNetwork_HostApp stringByAppendingString:@"wallet/teamincomelog.htm"]          //团队负责人身份-本月业绩和往期业绩
+//#define kNetwork_TeamWithdrawalsLog   [kNetwork_HostApp stringByAppendingString:@"wallet/teamwithdrawalslog.htm"]     //团队负责人身份-提现记录
+//#define kNetwork_ApplyTeamWithdraw    [kNetwork_HostApp stringByAppendingString:@"wallet/applyteamwithdraw.htm"]      //团队负责人身份-提现申请
+#define kNetwork_VerifyWithDrawMoney    [kNetwork_HostApp stringByAppendingString:@"wallet/verifywithdrawmoney.htm"]    //验证提现金额
+#define kNetwork_ApplyAlipayWithDraw    [kNetwork_HostApp stringByAppendingString:@"wallet/applyalipaywithdraw.htm"]    //支付宝提现申请
+#define kNetwork_SetAlipayUser          [kNetwork_HostApp stringByAppendingString:@"wallet/setalipayuser.htm"]          //设置支付宝帐号
+#define kNetwork_UpdateAlipayUser       [kNetwork_HostApp stringByAppendingString:@"wallet/updatealipayuser.htm"]       //修改支付宝帐号
+
+//客户接口
+#define kNetwork_GetAllMyCustomer       [kNetwork_HostApp stringByAppendingString:@"customer/getAllMyCustomer.htm"]     //我的客户
+#define kNetwork_MyClientStatistics     [kNetwork_HostApp stringByAppendingString:@"customer/myclientstatistics.htm"]   //我推荐的客户统计
+
+//消息中心接口
+#define kNetwork_GetMyMessages          [kNetwork_HostApp stringByAppendingString:@"message/getMyMessages.htm"]                             //获取所有消息
+#define kNetwork_DeleteMyMessages       [kNetwork_HostApp stringByAppendingString:@"message/deleteMyMessages.htm"]                          //删除对应的消息
+#define kNetwork_getMyLinkMessages      [kNetwork_HostApp stringByAppendingString:@"myLinkMessage/getMyLinkMessages.htm"]                   //消息中心(新版)
+
+//H5接口
+#define kNetwork_AchievementsCurMonth   [kNetwork_HostWap stringByAppendingString:@"achievements/wap_To_Achievements_By_CurMonth.htm"]      //本月业绩-合作伙伴负责人
+#define kNetwork_AchievementsYesarMonth [kNetwork_HostWap stringByAppendingString:@"achievements/wap_To_Achievements_By_YearMonth.htm"]     //往期业绩-合作伙伴负责人
+#define kNetwork_StatForPartner         [kNetwork_HostWap stringByAppendingString:@"statistics/morePartnerData.htm"]                        //已推荐客户统计-合作伙伴负责人身份
+#define kNetwork_StatForCustomer        [kNetwork_HostWap stringByAppendingString:@"statistics/rStatisticsForCustomer.htm"]                 //已推荐客户统计-电商部身份
+
+//已推荐客户接口
+#define kNetwork_GetLkinkCustomer                       [kNetwork_HostApp stringByAppendingString:@"LinkProjectInfo/get_link_customer.htm"]                         //已推荐列表
+#define kNetwork_GetCusProjectInfo                      [kNetwork_HostApp stringByAppendingString:@"LinkProjectInfo/getCusProjectInfo.htm"]                         //推荐详情
+#define kNetwork_GetCusProjectLog                       [kNetwork_HostApp stringByAppendingString:@"LinkProjectInfo/getCusProjectLog.htm"]                          //查看状态
+#define kNetwork_UpdateLinkCustomerProjectCheckStatus   [kNetwork_HostApp stringByAppendingString:@"LinkProjectInfo/update_link_customer_project_check_status.htm"] //修改已推荐用户审核状态
+#define kNetwork_UpdateLinkCustomerProjectAffirm        [kNetwork_HostApp stringByAppendingString:@"LinkProjectInfo/update_link_customer_project_affirm.htm"]       //修改已推荐用户确认到访
+#define kNetwork_UpdateLinkCustomerProjectDeal          [kNetwork_HostApp stringByAppendingString:@"LinkProjectInfo/update_link_customer_project_Deal.htm"]         //修改已推荐用户确认成立
+#define kNetwork_GetCusProjectDealMessage               [kNetwork_HostApp stringByAppendingString:@"LinkProjectInfo/get_cus_project_deal_message.htm"]              //查看成交信息
+#define kNetwork_GetJurisdiction                        [kNetwork_HostApp stringByAppendingString:@"LinkProjectInfo/get_jurisdiction.htm"]                          //获取用户权限
+#define kNetwork_ExportData                             [kNetwork_HostApp stringByAppendingString:@"LinkProjectInfo/exportData.htm"]                                //导出已推荐客户
+
+//是否隐藏用户注册
+#define kNetwork_IsShowRegister         [kNetwork_HostApp stringByAppendingString:@"users/isShowRegister.htm"]
+
+//地图接口
+#define kNetwork_GetHouseListForMap     [kNetwork_HostApp stringByAppendingString:@"house/getHouseListForMap.htm"]
+
+
+//已推荐客户接口 - 验证状态
+#define kNetwork_CheckStatus_UPTREATED  @"UNTREATED"            //待审核
+#define kNetwork_CheckStatus_NO         @"NO"                   //推荐无效
+#define kNetwork_CheckStatus_YES        @"YES"                  //成功报备
+
+//发送短信type参数
+#define kNetwork_REGISTER               @"REGISTER"             //普通注册
+#define kNetwork_PARTNERS_REGISTER      @"PARTNERS_REGISTER"    //合作伙伴注册
+#define kNetwork_FORGET_PASSWORD        @"FORGET_PASSWORD"      //忘记密码
+#define kNetwork_MY_BANKCARD            @"MY_BANKCARD"          //我的银行卡
+#define kNetwork_APPLY_WITHDRAW         @"APPLY_WITHDRAW"       //提现申请
+#define kNetwork_UPDATE_PHONE           @"UPDATE_PHONE"         //修改手机号码
+#define kNetwork_UPDATE_ALIPAYUSER      @"UPDATE_ALIPAYUSER"    //修改支付宝帐号
+
+//注册类型type参数
+#define kNetwork_AloneSales             @"alonesales"   //独立经纪人
+#define kNetwork_Partners               @"partners"     //合作伙伴
+
+//注册步骤step参数
+#define kNetwork_StepOne                @"one"  //独立经纪人
+#define kNetwork_StepTwo                @"two"  //合作伙伴
+
+//提现记录状态
+#define kNetwork_Withdrawals_APPLY_WITHDRAWALS  @"APPLY_WITHDRAWALS"    //已申请
+#define kNetwork_Withdrawals_SUBMIT_DATA        @"SUBMIT_DATA"          //资料已提交
+#define kNetwork_Withdrawals_IN_HAND            @"IN_HAND"              //处理中
+#define kNetwork_Withdrawals_ARRIVAL            @"ARRIVAL"              //已完成
+#define kNetwork_Withdrawals_CANCEL           @"CANCEL"              //提现不成功
+
+//用户类型userType
+#define kNetwork_UTSales            (@"SALES")              //独立经纪人
+#define kNetwork_UTPartners_Sales   (@"PARTNERS_SALES")     //合作伙伴PPLY_WIT
+#define kNetwork_UTIHK_Manage       (@"IHK_MANAGE")         //房王电商
+
+//用户类型roleType
+#define kNetwork_RTSALES            (@"SALES")              //销售
+#define kNetwork_RTMANAGE           (@"MANAGE")             //负责人
+
+//用户角色appType
+#define kNetwork_AppType_APP_SALES          (@"APP_SALES")          //独立经纪人
+#define kNetwork_AppType_APP_IHK_STAFF      (@"APP_IHK_STAFF")      //合富公司员工
+#define kNetwork_AppType_APP_IHK_SALES      (@"APP_IHK_SALES")      //合富公司驻场销售
+#define kNetwork_AppType_APP_IHK_DUTY       (@"APP_IHK_DUTY")       //合富公司负责人
+#define kNetwork_AppType_APP_PARTNERS_SALES (@"APP_PARTNERS_SALES") //合作伙伴经纪人
+#define kNetwork_AppType_APP_PARTNERS_DUTY  (@"APP_PARTNERS_DUTY")  //合作伙伴负责人
+
+//客户状态
+#define kNetwork_YET_BAOBEI         (@"YET_BAOBEI")         //已推荐
+#define kNetwork_YET_AFFIRM         (@"YET_AFFIRM")         //已到访
+#define kNetwork_YET_DEAL           (@"YET_DEAL")           //已成交
+#define kNetwork_KONT_COMMISSON     (@"KONT_COMMISSION")    //已结佣
+
+//实名认证状态
+#define kNetwork_NOT_VERIFIED       (@"NOT_VERIFIED")       //未验证
+#define kNetwork_PENDING_AUDIT      (@"PENDING_AUDIT")      //待审核
+#define kNetwork_AUDIT_FAILURE      (@"AUDIT_FAILURE")      //未通过，请重新认证
+#define kNetwork_PASS_VERIFIED      (@"PASS_VERIFIED")      //通过验证
+
+//收入类型
+#define kNetwork_IHK_INCOME             (@"IHK_INCOME")             //房王奖金
+#define kNetwork_RECOMMEND_PERFORMANCE  (@"RECOMMEND_PERFORMANCE")  //推荐业绩
+
+//远程推送类型
+#define kNetwork_APSCategory_Nofitication       (@"notification")       //普通推送消息
+#define kNetwork_APSCategory_KickLogin          (@"kicklogin")          //踢下线
+#define kNetwork_APSCategory_ApproveSuccess     (@"approvesuccess")     //认证成功
+#define kNetwork_APSCategory_ApproveFail        (@"approvefail")        //认证失败
+
+//消息中心跳转类型
+#define kNetwork_APP_LINK_PROJECT_INFO_LIST         (@"APP_LINK_PROJECT_INFO_LIST")         //已推荐列表页
+#define kNetwork_APP_LINK_PROJECT_INFO_H5           (@"APP_LINK_PROJECT_INFO_H5")           //跳转H5页面
+#define kNetwork_APP_LINK_PROJECT_INFO_DETAIL       (@"APP_LINK_PROJECT_INFO_DETAIL")       //楼盘详情页
+
+
+#endif

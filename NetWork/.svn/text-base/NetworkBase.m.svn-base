@@ -1,0 +1,252 @@
+//
+//  NetworkBase.m
+//  IHKHome
+//
+//  Created by calvin on 15/6/11.
+//  Copyright (c) 2015年 calvin. All rights reserved.
+//
+
+#import "NetworkBase.h"
+
+@implementation NetworkBase
+
++ (NSString *)getKey {
+    
+    NSDate *thisDate = [NSDate date];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+    NSString *strDate = [dateFormatter stringFromDate:thisDate];
+    NSString *sign = [NSString stringWithFormat:@"ihkhome%@", strDate] ;
+    return [MSUtil md5HexDigest:sign];
+}
+
++ (void)getRequestWithUrl:(NSString *)serverUrl
+                    paras:(NSMutableDictionary *)paras
+                  success:(void (^)(NetworkModel *model))success
+                     fail:(void (^)(NSError *error))fail {
+    
+    if ([paras valueForKey:@"ukey"] == nil) {
+        [paras setValue:[self getKey] forKey:@"ukey"];
+    }
+    if ([paras valueForKey:@"appType"] == nil) {
+        [paras setValue:@"ios" forKey:@"appType"];
+    }
+    if ([paras valueForKey:@"appVersion"] == nil) {
+        NSDictionary *infoDic = [[NSBundle mainBundle]infoDictionary];
+        [paras setValue:[NSString stringWithFormat:@"%@",[infoDic objectForKey:@"CFBundleShortVersionString"]] forKey:@"appVersion"];
+    }
+    if ([paras valueForKey:@"cityId"] == nil) {
+        [paras setValue:[NSString stringWithFormat:@"%@",[[NSUserDefaults standardUserDefaults] objectForKey:kCurrentCityId]] forKey:@"cityId"];
+    }
+    if ([paras valueForKey:@"userEncrypt"] == nil) {
+        [paras setValue:[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].encrypt] forKey:@"userEncrypt"];
+    }
+    if ([paras valueForKey:@"userPushToken"] == nil) {
+        [paras setValue:[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].pushToken] forKey:@"userPushToken"];
+    }
+    
+    for (NSString *key in [paras allKeys]) {
+        [paras setValue:[[paras valueForKey:key] stringByReplacingOccurrencesOfString:@"(null)" withString:@""] forKey:key];
+    }
+    
+    AFHTTPSessionManager *session = [AFHTTPSessionManager manager];
+    session.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    [self printLog:serverUrl paras:paras];
+    
+    [session GET:serverUrl parameters:paras progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (success) {
+            NSDictionary *result = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+            
+            NetworkModel *model = [[NetworkModel alloc]init];
+            [model setResult:[NSString stringWithFormat:@"%@", [result valueForKey:@"result"]]];
+            [model setMsg:[NSString stringWithFormat:@"%@", [result valueForKey:@"msg"]]];
+            [model setData:[result valueForKey:@"data"]];
+            
+            if ([model.result isEqualToString:kNetwork_ResultCode_LOGIN_CHECK_NO]) {
+                [KimiUserInfoModel logoutKimiUserinfo];
+            }
+            success(model);
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
++ (void)postDataWithUrl:(NSString *)serverUrl
+              withParas:(NSMutableDictionary *)paras
+           arrDataModel:(NSArray *)arrDataModel
+               progress:(void (^)(float currentProgress))progress
+                success:(void (^)(NetworkModel *model))success
+                   fail:(void (^)(NSError *error))fail {
+    
+    if ([paras valueForKey:@"ukey"] == nil) {
+        [paras setValue:[self getKey] forKey:@"ukey"];
+    }
+    if ([paras valueForKey:@"appType"] == nil) {
+        [paras setValue:@"ios" forKey:@"appType"];
+    }
+    if ([paras valueForKey:@"appVersion"] == nil) {
+        NSDictionary *infoDic = [[NSBundle mainBundle]infoDictionary];
+        [paras setValue:[NSString stringWithFormat:@"%@",[infoDic objectForKey:@"CFBundleShortVersionString"]] forKey:@"appVersion"];
+    }
+    if ([paras valueForKey:@"cityId"] == nil) {
+        [paras setValue:[NSString stringWithFormat:@"%@",[[NSUserDefaults standardUserDefaults] objectForKey:kCurrentCityId]] forKey:@"cityId"];
+    }
+    if ([paras valueForKey:@"userEncrypt"] == nil) {
+        [paras setValue:[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].encrypt] forKey:@"userEncrypt"];
+    }
+    if ([paras valueForKey:@"userPushToken"] == nil) {
+        [paras setValue:[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].pushToken] forKey:@"userPushToken"];
+    }
+    
+    for (NSString *key in [paras allKeys]) {
+        if ([[paras valueForKey:key] isKindOfClass:[NSString class]]) {
+            [paras setValue:[[paras valueForKey:key] stringByReplacingOccurrencesOfString:@"(null)" withString:@""] forKey:key];
+        }
+    }
+    
+    AFHTTPSessionManager *session = [AFHTTPSessionManager manager];
+    session.responseSerializer = [AFHTTPResponseSerializer serializer];
+    session.requestSerializer.timeoutInterval = 3600;
+    
+    [self printLog:serverUrl paras:paras];
+    
+    [session POST:serverUrl parameters:paras constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+        
+        if (arrDataModel) {
+            for (int i = 0; i < arrDataModel.count; i++) {
+                if ([arrDataModel[i] isKindOfClass:[PostDataModel class]]) {
+                    PostDataModel *postData = (PostDataModel *)arrDataModel[i];
+                    if (postData.postData) {
+                        [formData appendPartWithFileData:postData.postData name:postData.postName fileName:[NSString stringWithFormat:@"uploadfile%d.jpg", i + 1] mimeType:@"image/jpeg"];
+                    }
+                }
+            }
+        }
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+        progress((float)1.0 * uploadProgress.completedUnitCount / uploadProgress.totalUnitCount);
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSDictionary *result = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:nil];
+        NetworkModel *model = [[NetworkModel alloc]init];
+        [model setResult:[NSString stringWithFormat:@"%@", [result valueForKey:@"result"]]];
+        [model setMsg:[NSString stringWithFormat:@"%@", [result valueForKey:@"msg"]]];
+        [model setData:[result valueForKey:@"data"]];
+        success(model);
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        fail(error);
+    }];
+}
+
++ (NSURLRequest *)getH5Request:(NSString *)requestUrl
+                     withParas:(NSString *)paras {
+    
+    if ([requestUrl rangeOfString:@"http"].location == NSNotFound) {
+        requestUrl = [kNetwork_Host stringByAppendingString:requestUrl];
+    }
+    if ([requestUrl rangeOfString:kNetwork_Host].location != NSNotFound) {
+        
+        if ([requestUrl rangeOfString:@"?"].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:@"?"];
+        }
+        if (paras != nil) {
+            requestUrl = [requestUrl stringByAppendingString:paras];
+        }
+        if ([requestUrl rangeOfString:@"ukey="].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:[NSString stringWithFormat:@"&ukey=%@",[self getKey]]];
+        }
+        if ([requestUrl rangeOfString:@"appType"].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:@"&appType=ios"];
+        }
+        if ([requestUrl rangeOfString:@"appVersion="].location == NSNotFound) {
+            NSDictionary *infoDic = [[NSBundle mainBundle]infoDictionary];
+            requestUrl = [requestUrl stringByAppendingString:[NSString stringWithFormat:@"&appVersion=%@",[infoDic objectForKey:@"CFBundleShortVersionString"]]];
+        }
+        if ([requestUrl rangeOfString:@"cityId"].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:[NSString stringWithFormat:@"&cityId=%@",[[NSUserDefaults standardUserDefaults] objectForKey:kCurrentCityId]]];
+        }
+        if ([requestUrl rangeOfString:@"userEncrypt"].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:[NSString stringWithFormat:@"&userEncrypt=%@",[KimiUserInfoModel currentUserinfo].encrypt]];
+        }
+        if ([requestUrl rangeOfString:@"userPushToken"].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:[NSString stringWithFormat:@"&userPushToken=%@",[KimiUserInfoModel currentUserinfo].pushToken]];
+        }
+        requestUrl = [requestUrl stringByReplacingOccurrencesOfString:@"?&" withString:@"?"];
+        requestUrl = [requestUrl stringByReplacingOccurrencesOfString:@"(null)" withString:@""];
+    }
+    NSLog(@"H5 url=%@",requestUrl);
+    
+    NSString *myurl = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)requestUrl, NULL, NULL, kCFStringEncodingUTF8));
+    return [NSURLRequest requestWithURL:[NSURL URLWithString:myurl] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0];
+}
+
++ (NSString *)getH5Url:(NSString *)requestUrl {
+    
+    if ([requestUrl rangeOfString:@"http"].location == NSNotFound) {
+        requestUrl = [kNetwork_Host stringByAppendingString:requestUrl];
+    }
+    if ([requestUrl rangeOfString:kNetwork_Host].location != NSNotFound) {
+        
+        if ([requestUrl rangeOfString:@"?"].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:@"?"];
+        }
+        if ([requestUrl rangeOfString:@"appType"].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:@"&appType=ios"];
+        }
+        if ([requestUrl rangeOfString:@"appVersion="].location == NSNotFound) {
+            NSDictionary *infoDic = [[NSBundle mainBundle]infoDictionary];
+            requestUrl = [requestUrl stringByAppendingString:[NSString stringWithFormat:@"&appVersion=%@",[infoDic objectForKey:@"CFBundleShortVersionString"]]];
+        }
+        if ([requestUrl rangeOfString:@"cityId"].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:[NSString stringWithFormat:@"&cityId=%@",[[NSUserDefaults standardUserDefaults] objectForKey:kCurrentCityId]]];
+        }
+        if ([requestUrl rangeOfString:@"userEncrypt"].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:[NSString stringWithFormat:@"&userEncrypt=%@",[KimiUserInfoModel currentUserinfo].encrypt]];
+        }
+        if ([requestUrl rangeOfString:@"userPushToken"].location == NSNotFound) {
+            requestUrl = [requestUrl stringByAppendingString:[NSString stringWithFormat:@"&userPushToken=%@",[KimiUserInfoModel currentUserinfo].pushToken]];
+        }
+        requestUrl = [requestUrl stringByReplacingOccurrencesOfString:@"?&" withString:@"?"];
+        requestUrl = [requestUrl stringByReplacingOccurrencesOfString:@"(null)" withString:@""];
+    }
+    NSLog(@"H5 url=%@",requestUrl);
+    
+    return (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)requestUrl, NULL, NULL, kCFStringEncodingUTF8));
+}
+
++ (NSString *)formatCityName:(NSString *)cityName {
+    
+    if ([cityName rangeOfString:@"市"].location == NSNotFound) {
+        cityName = [cityName stringByAppendingString:@"市"];
+    }
+    return cityName;
+}
+
++ (NSString *)unformatCityName:(NSString *)cityName {
+    
+    if ([cityName hasSuffix:@"市"]) {
+        return [cityName componentsSeparatedByString:@"市"][0];
+    }
+    else if ([cityName hasSuffix:@"省"]) {
+        return [cityName componentsSeparatedByString:@"省"][0];
+    }
+    return cityName;
+}
+
++ (void)printLog:(NSString *)serverUrl paras:(NSMutableDictionary *)paras {
+    NSString *url = @"";
+    for (NSString *keyName in paras) {
+        url = [[[[url stringByAppendingString:@"&"] stringByAppendingString:keyName]stringByAppendingString:@"="]stringByAppendingString:[NSString stringWithFormat:@"%@",[paras objectForKey:keyName]]];
+    }
+    url = [url substringFromIndex:1];
+    url = [[serverUrl stringByAppendingString:@"?"]stringByAppendingString:url];
+    NSLog(@"数据请求地址:\n%@",url);
+}
+
+@end

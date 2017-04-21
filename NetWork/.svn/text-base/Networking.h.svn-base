@@ -1,0 +1,334 @@
+//
+//  Networking.h
+//  IHKHome
+//
+//  Created by calvin on 15/6/11.
+//  Copyright (c) 2015年 calvin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "NetworkBase.h"
+
+@interface Networking : NSObject
+
++ (NSString *)getDeviceCode;
+
++ (void)getAllCity:(void (^)(NetworkModel *model))success
+              fail:(void (^)(NSError *error))fail;
+
++ (void)getAboutUs:(void (^)(NetworkModel *model))success
+              fail:(void (^)(NSError *error))fail;
+
++ (void)savePushTokenWithPushToken:(NSString *)pushToken
+                           success:(void (^)(NetworkModel *model))success
+                              fail:(void (^)(NSError *error))fail;
+
++ (void)sendSmsWithType:(NSString *)type
+                 mobile:(NSString *)mobile
+               inviteNo:(NSString *)inviteNo
+               realName:(NSString *)realName
+                success:(void (^)(NetworkModel *model))success
+                   fail:(void (^)(NSError *error))fail;
+
++ (void)resgisterWithLoginName:(NSString *)loginName
+                      passWord:(NSString *)passWord
+                          type:(NSString *)type
+                       captcha:(NSString *)captcha
+                          step:(NSString *)step
+                      inviteNo:(NSString *)inviteNo
+                      realName:(NSString *)realName
+              recommendedPhone:(NSString *)recommendedPhone
+                       success:(void (^)(NetworkModel *model))success
+                          fail:(void (^)(NSError *error))fail;
+
++ (void)loginWithLoginName:(NSString *)loginName
+                  passWord:(NSString *)passWord
+                   success:(void (^)(NetworkModel *model))success
+                      fail:(void (^)(NSError *error))fail;
+
++ (void)logout:(void (^)(NetworkModel *model))success
+          fail:(void (^)(NSError *error))fail;
+
++ (void)forgetPwdWithLoginName:(NSString *)loginName
+                      passWord:(NSString *)passWord
+                       captcha:(NSString *)captcha
+                       success:(void (^)(NetworkModel *model))success
+                          fail:(void (^)(NSError *error))fail;
+
++ (void)updatePasswordWithLoginName:(NSString *)loginName
+                           passWord:(NSString *)passWord
+                        newPassWord:(NSString *)newPassWord
+                            success:(void (^)(NetworkModel *model))success
+                               fail:(void (^)(NSError *error))fail;
+
++ (void)updateUserInfoWithLoginName:(NSString *)loginName
+                             isfile:(NSString *)isfile
+                          photoData:(NSData *)photoData
+                           realName:(NSString *)realName
+                              phone:(NSString *)phone
+                            captcha:(NSString *)captcha
+                            success:(void (^)(NetworkModel *model))success
+                               fail:(void (^)(NSError *error))fail;
+
++ (void)submitApproveWithCardZ:(NSData *)cardZ
+                         cardF:(NSData *)cardF
+                      realName:(NSString *)realName
+                        cardNo:(NSString *)cardNo
+                       success:(void (^)(NetworkModel *model))success
+                          fail:(void (^)(NSError *error))fail;
+
++ (void)verifyUser:(void (^)(NetworkModel *model))success
+              fail:(void (^)(NSError *error))fail;
+
++ (void)verifyClause:(void (^)(NetworkModel *model))success
+                fail:(void (^)(NSError *error))fail;
+
++ (void)verifyClauseNew:(void (^)(NetworkModel *model))success
+                   fail:(void (^)(NSError *error))fail;
+
++ (void)updatePushTokenWithSound:(NSString *)sound
+                       vibration:(NSString *)vibration
+                         success:(void (^)(NetworkModel *model))success
+                            fail:(void (^)(NSError *error))fail;
+
++ (void)verifyMachineNoWithUserPushToken:(NSString *)userPushToken
+                           userMachineNo:(NSString *)userMachineNo
+                                 success:(void (^)(NetworkModel *model))success
+                                    fail:(void (^)(NSError *error))fail;
+
++ (void)getAdvert:(void (^)(NetworkModel *model))success
+             fail:(void (^)(NSError *error))fail;
+
++ (void)getHomeHouse:(void (^)(NetworkModel *model))success
+                fail:(void (^)(NSError *error))fail;
+
++ (void)getHouseListWithPage:(NSString *)page
+                    pageSize:(NSString *)pageSize
+                        time:(NSString *)time
+                     content:(NSString *)content
+              containExpired:(NSString *)containExpired
+                     success:(void (^)(NetworkModel *model))success
+                        fail:(void (^)(NSError *error))fail;
+
++ (void)getHouseDetailedWithProjectId:(NSString *)projectId
+                              success:(void (^)(NetworkModel *model))success
+                                 fail:(void (^)(NSError *error))fail;
+
++ (void)pushCustomerWithCustomerName:(NSString *)customerName
+                       customerPhone:(NSString *)customerPhone
+                     reCustomerPhone:(NSString *)reCustomerPhone
+                                 sex:(NSString *)sex
+                             isDaike:(NSString *)isDaike
+                          projectIds:(NSString *)projectIds
+                        visitingTime:(NSString *)visitingTime
+                             success:(void (^)(NetworkModel *model))success
+                                fail:(void (^)(NSError *error))fail;
+
++ (void)getHouseIsExpiredWithProjectId:(NSString *)projectId
+                               success:(void (^)(NetworkModel *model))success
+                                  fail:(void (^)(NSError *error))fail;
+
++ (void)getHotHouses:(void (^)(NetworkModel *model))success
+                fail:(void (^)(NSError *error))fail;
+
++ (void)myWallet:(void (^)(NetworkModel *model))success
+            fail:(void (^)(NSError *error))fail;
+
++ (void)myIncomeLogWithIncomeType:(NSString *)incomeType
+                          success:(void (^)(NetworkModel *model))success
+                             fail:(void (^)(NSError *error))fail;
+
++ (void)myWithdrawalsLog:(void (^)(NetworkModel *model))success
+                    fail:(void (^)(NSError *error))fail;
+
++ (void)myBankCard:(void (^)(NetworkModel *model))success
+              fail:(void (^)(NSError *error))fail;
+
+//+ (void)getBankCardType:(void (^)(NetworkModel *model))success
+//                   fail:(void (^)(NSError *error))fail;
+
++ (void)bankCardQueqyWithCardNo:(NSString *)cardNo
+                        success:(void (^)(NetworkModel *model))success
+                           fail:(void (^)(NSError *error))fail;
+
++ (void)addBankCardWithCaptcha:(NSString *)captcha
+                      cardType:(NSString *)cardType
+                        cardNo:(NSString *)cardNo
+                      userName:(NSString *)userName
+                         phone:(NSString *)phone
+                   openingBank:(NSString *)openingBank
+                       success:(void (^)(NetworkModel *model))success
+                          fail:(void (^)(NSError *error))fail;
+
++ (void)applyWithdrawWithCaptcha:(NSString *)captcha
+                           phone:(NSString *)phone
+                           money:(NSString *)money
+                      bankCardId:(NSString *)bankCardId
+                         success:(void (^)(NetworkModel *model))success
+                            fail:(void (^)(NSError *error))fail;
+
++ (void)teamPerformance:(void (^)(NetworkModel *model))success
+                   fail:(void (^)(NSError *error))fail;
+
+//+ (void)teamIncomeLogWithUserEncrypt:(NSString *)userEncrypt
+//                       userPushToken:(NSString *)userPushToken
+//                               month:(NSString *)month
+//                             success:(void (^)(NetworkModel *model))success
+//                                fail:(void (^)(NSError *error))fail;
+
+//+ (void)teamWithdrawalsLogWithUserEncrypt:(NSString *)userEncrypt
+//                            userPushToken:(NSString *)userPushToken
+//                                  success:(void (^)(NetworkModel *model))success
+//                                     fail:(void (^)(NSError *error))fail;
+
+//+ (void)applyTeamWithdrawWithUserEncrypt:(NSString *)userEncrypt
+//                           userPushToken:(NSString *)userPushToken
+//                                 captcha:(NSString *)captcha
+//                                   phone:(NSString *)phone
+//                                   money:(NSString *)money
+//                                 success:(void (^)(NetworkModel *model))success
+//                                    fail:(void (^)(NSError *error))fail;
+
++ (void)verifyWithDrawMoneyWithMoney:(NSString *)money
+                             success:(void (^)(NetworkModel *model))success
+                                fail:(void (^)(NSError *error))fail;
+
++ (void)applyAlipayWithdrawWithAlipayAccount:(NSString *)alipayAccount
+                                    realName:(NSString *)realName
+                                       money:(NSString *)money
+                                  bankCardId:(NSString *)bankCardId
+                                     success:(void (^)(NetworkModel *model))success
+                                        fail:(void (^)(NSError *error))fail;
+
++ (void)setAlipayUserWithAlipayAccount:(NSString *)alipayAccount
+                              realName:(NSString *)realName
+                               success:(void (^)(NetworkModel *model))success
+                                  fail:(void (^)(NSError *error))fail;
+
++ (void)updateAlipayUserWithAlipayAccount:(NSString *)alipayAccount
+                                 realName:(NSString *)realName
+                                  captcha:(NSString *)captcha
+                                  success:(void (^)(NetworkModel *model))success
+                                     fail:(void (^)(NSError *error))fail;
+
+//+ (void)getMyMessagesWithUserEncrypt:(NSString *)userEncrypt
+//                       UserPushToken:(NSString *)userPushToken
+//                             success:(void (^)(NetworkModel *model))success
+//                                fail:(void (^)(NSError *error))fail;
+
+//+ (void)deleteMessagesByIds:(NSString *)messageUserIds
+//                UserEncrypt:(NSString *)userEncrypt
+//              userPushToken:(NSString *)userPushToken
+//                    success:(void (^)(NetworkModel *model))success
+//                       fail:(void (^)(NSError *error))fail;
+
++ (void)getMyLinkMessages:(void (^)(NetworkModel *model))success
+                     fail:(void (^)(NSError *error))fail;
+
++ (void)getMySearchableHouse:(void (^)(NetworkModel *model))success
+                        fail:(void (^)(NSError *error))fail;
+
++ (void)getAllMyCustomerWithPage:(NSString *)page
+                        pageSize:(NSString *)pageSize
+                            time:(NSString *)time
+                         content:(NSString *)content
+                          status:(NSString *)status
+                     checkStatus:(NSString *)checkStatus
+                         success:(void (^)(NetworkModel *model))success
+                            fail:(void (^)(NSError *error))fail;
+
+//+ (void)myClientStatisticsWithUserEncrypt:(NSString *)userEncrypt
+//                            userPushToken:(NSString *)userPushToken
+//                                  success:(void (^)(NetworkModel *model))success
+//                                     fail:(void (^)(NSError *error))fail;
+
+
++ (NSURLRequest *)achievementsCurMonth;
+
++ (NSURLRequest *)achievementsYesarMonthWithYearMonth:(NSString *)yearMonth;
+
++ (NSURLRequest *)statForPartnerWithInviteNo:(NSString *)inviteNo
+                                   startDate:(NSString *)startDate
+                                     endDate:(NSString *)endDate
+                                    checkAll:(NSString *)checkAll
+                                    realName:(NSString *)realName;
+
++ (NSURLRequest *)statForPartnerWithProjectIds:(NSString *)projectIds
+                                     startDate:(NSString *)startDate
+                                       endDate:(NSString *)endDate;
+
++ (void)getLkinkCustomerWithTimeStamp:(NSString *)timestamp
+                                 page:(NSString *)page
+                             pageSize:(NSString *)pageSize
+                            houseName:(NSString *)houseName
+                          checkStatus:(NSString *)checkStatus
+                               status:(NSString *)status
+                        customerPhone:(NSString *)customerPhone
+                         customerName:(NSString *)customerName
+                     referrerRealName:(NSString *)referrerRealName
+                    referrerRealPhone:(NSString *)referrerRealPhone
+                  contractCompanyName:(NSString *)contractCompanyName
+                        showDateBegin:(NSString *)showDateBegin
+                          showDateEnd:(NSString *)showDateEnd
+                              success:(void (^)(NetworkModel *model))success
+                                 fail:(void (^)(NSError *error))fail;
+
++ (void)getCusProjectInfoWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                           success:(void (^)(NetworkModel *model))success
+                                              fail:(void (^)(NSError *error))fail;
+
++ (void)getCusProjectLogWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                          success:(void (^)(NetworkModel *model))success
+                                             fail:(void (^)(NSError *error))fail;
+
++ (void)updateLinkCustomerProjectCheckStatusWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                                          checkStatus:(NSString *)checkStatus
+                                                               remark:(NSString *)remark
+                                                            isRetrial:(NSString *)isRetrial
+                                                              success:(void (^)(NetworkModel *model))success
+                                                                 fail:(void (^)(NSError *error))fail;
+
++ (void)updateLinkCustomerProjectAffirmWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                            localeReceptionSales:(NSString *)localeReceptionSales
+                                                         success:(void (^)(NetworkModel *model))success
+                                                            fail:(void (^)(NSError *error))fail;
+
++ (void)updateLinkCustomerProjectDealWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                                      dealCell:(NSString *)dealCell
+                                                      dealDate:(NSString *)dealDate
+                                                    dealSquare:(NSString *)dealSquare
+                                                     dealTotal:(NSString *)dealTotal
+                                           confirmDealUserName:(NSString *)confirmDealUserName
+                                          confirmDealUserPhone:(NSString *)confirmDealUserPhone
+                                                    commission:(NSString *)commission
+                                                       success:(void (^)(NetworkModel *model))success
+                                                          fail:(void (^)(NSError *error))fail;
+
++ (void)getCusProjectDealMessageWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                                  success:(void (^)(NetworkModel *model))success
+                                                     fail:(void (^)(NSError *error))fail;
+
++ (void)exportDataWithHouseName:(NSString *)houseName
+                    checkStatus:(NSString *)checkStatus
+                         status:(NSString *)status
+                  customerPhone:(NSString *)customerPhone
+                   customerName:(NSString *)customerName
+               referrerRealName:(NSString *)referrerRealName
+              referrerRealPhone:(NSString *)referrerRealPhone
+            contractCompanyName:(NSString *)contractCompanyName
+                  showDateBegin:(NSString *)showDateBegin
+                    showDateEnd:(NSString *)showDateEnd
+                        success:(void (^)(NetworkModel *model))success
+                           fail:(void (^)(NSError *error))fail;
+
++ (void)getJurisdiction:(void (^)(NetworkModel *model))success
+                   fail:(void (^)(NSError *error))fail;
+
++ (void)isShowRegister:(void (^)(NetworkModel *model))success
+                  fail:(void (^)(NSError *error))fail;
+
++ (void)getHouseListForMapWithContent:(NSString *)content
+                              success:(void (^)(NetworkModel *model))success
+                                 fail:(void (^)(NSError *error))fail;
+
+@end

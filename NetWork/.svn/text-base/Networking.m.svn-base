@@ -1,0 +1,1501 @@
+//
+//  Networking.m
+//  IHKHome
+//
+//  Created by calvin on 15/6/11.
+//  Copyright (c) 2015年 calvin. All rights reserved.
+//
+
+#import "Networking.h"
+
+@implementation Networking
+
+
+/* 生成机器号 */
++ (NSString *)getDeviceCode {
+    
+//    NSDate *thisDate = [NSDate date];
+//    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+//    [dateFormatter setDateFormat:@"yyyyMMddHHmmss"];
+//    NSString *strDate = [dateFormatter stringFromDate:thisDate];
+//    return [NSString stringWithFormat:@"iosdevice%@", strDate];
+    
+    NSString *UUID = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    return [NSString stringWithFormat:@"iosdevice%@", UUID];
+}
+
+/* 获取城市 */
++ (void)getAllCity:(void (^)(NetworkModel *model))success
+              fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [NetworkBase getRequestWithUrl:kNetwork_GetAllCity paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 关于我们 */
++ (void)getAboutUs:(void (^)(NetworkModel *model))success
+              fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [NetworkBase getRequestWithUrl:kNetwork_GetAboutUs paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 保存推送记录 */
++ (void)savePushTokenWithPushToken:(NSString *)pushToken
+                           success:(void (^)(NetworkModel *model))success
+                              fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:@"ios" forKey:@"appType"];
+    [paras setValue:@"" forKey:@"lng"];
+    [paras setValue:@"" forKey:@"lat"];
+    [paras setValue:[NSString stringWithFormat:@"%@",pushToken] forKey:@"pushToken"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_SavePushToken paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 发送短信 */
++ (void)sendSmsWithType:(NSString *)type
+                 mobile:(NSString *)mobile
+               inviteNo:(NSString *)inviteNo
+               realName:(NSString *)realName
+                success:(void (^)(NetworkModel *model))success
+                   fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",type] forKey:@"type"];
+    [paras setValue:[NSString stringWithFormat:@"%@",mobile] forKey:@"mobile"];
+    [paras setValue:[NSString stringWithFormat:@"%@",inviteNo] forKey:@"inviteNo"];
+    [paras setValue:[NSString stringWithFormat:@"%@",realName] forKey:@"realName"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_SendSms paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 用户注册 */
++ (void)resgisterWithLoginName:(NSString *)loginName
+                      passWord:(NSString *)passWord
+                          type:(NSString *)type
+                       captcha:(NSString *)captcha
+                          step:(NSString *)step
+                      inviteNo:(NSString *)inviteNo
+                      realName:(NSString *)realName
+              recommendedPhone:(NSString *)recommendedPhone
+                       success:(void (^)(NetworkModel *model))success
+                          fail:(void (^)(NSError *error))fail {
+    
+    if ([[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].pushToken] isEqualToString:@""] ||
+        [[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].pushToken] isEqualToString:@"(null)"]) {
+        
+        NSString *pushToken = [self getDeviceCode];
+        [KimiUserInfoModel savePushToken:pushToken sussess:^(NetworkModel *model) {
+            if ([model.result isEqualToString:kNetwork_ResultCode]) {
+                
+                NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+                [paras setValue:[NSString stringWithFormat:@"%@",loginName] forKey:@"loginName"];
+                [paras setValue:[NSString stringWithFormat:@"%@",passWord] forKey:@"passWord"];
+                [paras setValue:[NSString stringWithFormat:@"%@",type] forKey:@"type"];
+                [paras setValue:[NSString stringWithFormat:@"%@",captcha] forKey:@"captcha"];
+                [paras setValue:[NSString stringWithFormat:@"%@",step] forKey:@"step"];
+                [paras setValue:[NSString stringWithFormat:@"%@",inviteNo] forKey:@"inviteNo"];
+                [paras setValue:[NSString stringWithFormat:@"%@",realName] forKey:@"realName"];
+                [paras setValue:[NSString stringWithFormat:@"%@",recommendedPhone] forKey:@"recommendedPhone"];
+                [paras setValue:[NSString stringWithFormat:@"%@",pushToken] forKey:@"pushToken"];
+                
+                [NetworkBase getRequestWithUrl:kNetwork_Register paras:paras success:^(NetworkModel *model) {
+                    if (success) {
+                        success(model);
+                    }
+                } fail:^(NSError *error) {
+                    if (fail) {
+                        fail(error);
+                    }
+                }];
+            }
+            else {
+                if (success) {
+                    NetworkModel *errorModel = [[NetworkModel alloc]init];
+                    [errorModel setResult:@"99999"];
+                    [errorModel setMsg:@"访问网络数据异常"];
+                    [errorModel setData:@""];
+                    success(errorModel);
+                }
+            }
+        } fail:^(NSError *error) {
+            if (fail) {
+                fail(error);
+            }
+        }];
+    }
+    else {
+        NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+        [paras setValue:[NSString stringWithFormat:@"%@",loginName] forKey:@"loginName"];
+        [paras setValue:[NSString stringWithFormat:@"%@",passWord] forKey:@"passWord"];
+        [paras setValue:[NSString stringWithFormat:@"%@",type] forKey:@"type"];
+        [paras setValue:[NSString stringWithFormat:@"%@",captcha] forKey:@"captcha"];
+        [paras setValue:[NSString stringWithFormat:@"%@",step] forKey:@"step"];
+        [paras setValue:[NSString stringWithFormat:@"%@",inviteNo] forKey:@"inviteNo"];
+        [paras setValue:[NSString stringWithFormat:@"%@",realName] forKey:@"realName"];
+        [paras setValue:[NSString stringWithFormat:@"%@",recommendedPhone] forKey:@"recommendedPhone"];
+        [paras setValue:[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].pushToken] forKey:@"pushToken"];
+        
+        [NetworkBase getRequestWithUrl:kNetwork_Register paras:paras success:^(NetworkModel *model) {
+            if (success) {
+                success(model);
+            }
+        } fail:^(NSError *error) {
+            if (fail) {
+                fail(error);
+            }
+        }];
+    }
+}
+
+
+/* 用户登录 */
++ (void)loginWithLoginName:(NSString *)loginName
+                  passWord:(NSString *)passWord
+                   success:(void (^)(NetworkModel *model))success
+                      fail:(void (^)(NSError *error))fail {
+    
+    if ([[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].pushToken] isEqualToString:@""] ||
+        [[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].pushToken] isEqualToString:@"(null)"]) {
+        
+        NSString *pushToken = [self getDeviceCode];
+        [KimiUserInfoModel savePushToken:pushToken sussess:^(NetworkModel *model) {
+            if ([model.result isEqualToString:kNetwork_ResultCode]) {
+                
+                NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+                [paras setValue:[NSString stringWithFormat:@"%@",loginName] forKey:@"loginName"];
+                [paras setValue:[NSString stringWithFormat:@"%@",passWord] forKey:@"passWord"];
+                [paras setValue:[NSString stringWithFormat:@"%@",pushToken] forKey:@"pushToken"];
+                
+                [NetworkBase getRequestWithUrl:kNetwork_Login paras:paras success:^(NetworkModel *model) {
+                    if (success) {
+                        success(model);
+                    }
+                } fail:^(NSError *error) {
+                    if (fail) {
+                        fail(error);
+                    }
+                }];
+            }
+            else {
+                if (success) {
+                    NetworkModel *errorModel = [[NetworkModel alloc]init];
+                    [errorModel setResult:@"99999"];
+                    [errorModel setMsg:@"访问网络数据异常"];
+                    [errorModel setData:@""];
+                    success(errorModel);
+                }
+            }
+        } fail:^(NSError *error) {
+            if (fail) {
+                fail(error);
+            }
+        }];
+    }
+    else {
+        NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+        [paras setValue:[NSString stringWithFormat:@"%@",loginName] forKey:@"loginName"];
+        [paras setValue:[NSString stringWithFormat:@"%@",passWord] forKey:@"passWord"];
+        [paras setValue:[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].pushToken] forKey:@"pushToken"];
+        
+        [NetworkBase getRequestWithUrl:kNetwork_Login paras:paras success:^(NetworkModel *model) {
+            if (success) {
+                success(model);
+            }
+        } fail:^(NSError *error) {
+            if (fail) {
+                fail(error);
+            }
+        }];
+    }
+}
+
+
+/* 用户注销 */
++ (void)logout:(void (^)(NetworkModel *model))success
+          fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_Logout paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 忘记密码 */
++ (void)forgetPwdWithLoginName:(NSString *)loginName
+                      passWord:(NSString *)passWord
+                       captcha:(NSString *)captcha
+                       success:(void (^)(NetworkModel *model))success
+                          fail:(void (^)(NSError *error))fail {
+    
+    if ([[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].pushToken] isEqualToString:@""] ||
+        [[NSString stringWithFormat:@"%@",[KimiUserInfoModel currentUserinfo].pushToken] isEqualToString:@"(null)"]) {
+        
+        NSString *userPushToken = [self getDeviceCode];
+        [KimiUserInfoModel savePushToken:userPushToken sussess:^(NetworkModel *model) {
+            if ([model.result isEqualToString:kNetwork_ResultCode]) {
+                
+                NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+                [paras setValue:[NSString stringWithFormat:@"%@",loginName] forKey:@"loginName"];
+                [paras setValue:[NSString stringWithFormat:@"%@",passWord] forKey:@"passWord"];
+                [paras setValue:[NSString stringWithFormat:@"%@",captcha] forKey:@"captcha"];
+                [paras setValue:[NSString stringWithFormat:@"%@",userPushToken] forKey:@"userPushToken"];
+                
+                [NetworkBase getRequestWithUrl:kNetwork_ForgetPwd paras:paras success:^(NetworkModel *model) {
+                    if (success) {
+                        success(model);
+                    }
+                } fail:^(NSError *error) {
+                    if (fail) {
+                        fail(error);
+                    }
+                }];
+            }
+            else {
+                if (success) {
+                    NetworkModel *errorModel = [[NetworkModel alloc]init];
+                    [errorModel setResult:@"99999"];
+                    [errorModel setMsg:@"访问网络数据异常"];
+                    [errorModel setData:@""];
+                    success(errorModel);
+                }
+            }
+        } fail:^(NSError *error) {
+            if (fail) {
+                fail(error);
+            }
+        }];
+    }
+    else {
+        NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+        [paras setValue:[NSString stringWithFormat:@"%@",loginName] forKey:@"loginName"];
+        [paras setValue:[NSString stringWithFormat:@"%@",passWord] forKey:@"passWord"];
+        [paras setValue:[NSString stringWithFormat:@"%@",captcha] forKey:@"captcha"];
+        
+        [NetworkBase getRequestWithUrl:kNetwork_ForgetPwd paras:paras success:^(NetworkModel *model) {
+            if (success) {
+                success(model);
+            }
+        } fail:^(NSError *error) {
+            if (fail) {
+                fail(error);
+            }
+        }];
+    }
+}
+
+
+/* 修改密码 */
++ (void)updatePasswordWithLoginName:(NSString *)loginName
+                           passWord:(NSString *)passWord
+                        newPassWord:(NSString *)newPassWord
+                            success:(void (^)(NetworkModel *model))success
+                               fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",loginName] forKey:@"loginName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",passWord] forKey:@"passWord"];
+    [paras setValue:[NSString stringWithFormat:@"%@",newPassWord] forKey:@"newPassWord"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_UpdatePassword paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 修改个人信息 */
++ (void)updateUserInfoWithLoginName:(NSString *)loginName
+                             isfile:(NSString *)isfile
+                          photoData:(NSData *)photoData
+                           realName:(NSString *)realName
+                              phone:(NSString *)phone
+                            captcha:(NSString *)captcha
+                            success:(void (^)(NetworkModel *model))success
+                               fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",loginName] forKey:@"loginName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",isfile] forKey:@"isfile"];
+    [paras setValue:[NSString stringWithFormat:@"%@",realName] forKey:@"realName"];
+    
+    //修改手机
+    if (captcha && ![captcha isEqualToString:@""]) {
+        [paras setValue:[NSString stringWithFormat:@"%@",phone] forKey:@"phone"];
+        [paras setValue:[NSString stringWithFormat:@"%@",captcha] forKey:@"captcha"];
+    }
+    
+    PostDataModel *postData = [[PostDataModel alloc]init];
+    postData.postName = @"photo";
+    postData.postData = photoData;
+    
+    NSArray *arrDataModel = [[NSArray alloc]initWithObjects:postData, nil];
+    
+    [NetworkBase postDataWithUrl:kNetwork_UpdateUserInfo withParas:paras arrDataModel:arrDataModel progress:^(float currentProgress) {
+        
+    } success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 实名认证 */
++ (void)submitApproveWithCardZ:(NSData *)cardZ
+                         cardF:(NSData *)cardF
+                      realName:(NSString *)realName
+                        cardNo:(NSString *)cardNo
+                       success:(void (^)(NetworkModel *model))success
+                          fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",realName] forKey:@"realName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",cardNo] forKey:@"cardNo"];
+    
+    PostDataModel *postData1 = [[PostDataModel alloc]init];
+    postData1.postName = @"cardZ";
+    postData1.postData = cardZ;
+    
+    PostDataModel *postData2 = [[PostDataModel alloc]init];
+    postData2.postName = @"cardF";
+    postData2.postData = cardF;
+    
+    NSArray *arrDataModel = [[NSArray alloc]initWithObjects:postData1, postData2, nil];
+    
+    [NetworkBase postDataWithUrl:kNetwork_SubmitApprove withParas:paras arrDataModel:arrDataModel progress:^(float currentProgress) {
+        
+    } success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 验证用户是否被踢掉 */
++ (void)verifyUser:(void (^)(NetworkModel *model))success
+              fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_VerifyUser paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 协议接口 */
++ (void)verifyClause:(void (^)(NetworkModel *model))success
+                fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_VerifyClause paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 协议接口(新) */
++ (void)verifyClauseNew:(void (^)(NetworkModel *model))success
+                   fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_VerifyClauseNew paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 保存用户设置 */
++ (void)updatePushTokenWithSound:(NSString *)sound
+                       vibration:(NSString *)vibration
+                         success:(void (^)(NetworkModel *model))success
+                            fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",sound] forKey:@"sound"];
+    [paras setValue:[NSString stringWithFormat:@"%@",vibration] forKey:@"vibration"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_UpdatePushToken paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 重置机器号 */
++ (void)verifyMachineNoWithUserPushToken:(NSString *)userPushToken
+                           userMachineNo:(NSString *)userMachineNo
+                                 success:(void (^)(NetworkModel *model))success
+                                    fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",userPushToken] forKey:@"userPushToken"];
+    [paras setValue:[NSString stringWithFormat:@"%@",userMachineNo] forKey:@"userMachineNo"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_VerifyMachineNo paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 获取城市所属广告图（首页） */
++ (void)getAdvert:(void (^)(NetworkModel *model))success
+             fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetAdvert paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 获取楼盘列表（首页） */
++ (void)getHomeHouse:(void (^)(NetworkModel *model))success
+                fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_NewGetHomeHouses paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 查询楼盘列表（推荐客户或者查询楼盘用） */
++ (void)getHouseListWithPage:(NSString *)page
+                    pageSize:(NSString *)pageSize
+                        time:(NSString *)time
+                     content:(NSString *)content
+              containExpired:(NSString *)containExpired
+                     success:(void (^)(NetworkModel *model))success
+                        fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",page] forKey:@"page"];
+    [paras setValue:[NSString stringWithFormat:@"%@",pageSize] forKey:@"pageSize"];
+    [paras setValue:[NSString stringWithFormat:@"%@",time] forKey:@"time"];
+    [paras setValue:[NSString stringWithFormat:@"%@",content] forKey:@"content"];
+    [paras setValue:[NSString stringWithFormat:@"%@",containExpired] forKey:@"containExpired"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetHouseList paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 查询楼盘详情页和图片 */
++ (void)getHouseDetailedWithProjectId:(NSString *)projectId
+                              success:(void (^)(NetworkModel *model))success
+                                 fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",projectId] forKey:@"projectId"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetHouseDetailed paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 推荐客户 */
++ (void)pushCustomerWithCustomerName:(NSString *)customerName
+                       customerPhone:(NSString *)customerPhone
+                     reCustomerPhone:(NSString *)reCustomerPhone
+                                 sex:(NSString *)sex
+                             isDaike:(NSString *)isDaike
+                          projectIds:(NSString *)projectIds
+                        visitingTime:(NSString *)visitingTime
+                             success:(void (^)(NetworkModel *model))success
+                                fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",customerName] forKey:@"customerName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",customerPhone] forKey:@"customerPhone"];
+    [paras setValue:[NSString stringWithFormat:@"%@",reCustomerPhone] forKey:@"reCustomerPhone"];
+    [paras setValue:[NSString stringWithFormat:@"%@",sex] forKey:@"sex"];
+    [paras setValue:[NSString stringWithFormat:@"%@",isDaike] forKey:@"isDaike"];
+    [paras setValue:[NSString stringWithFormat:@"%@",projectIds] forKey:@"projectIds"];
+    [paras setValue:[NSString stringWithFormat:@"%@",visitingTime] forKey:@"visitingTime"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_PushCustomer paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 判断推荐项目是否过期 */
++ (void)getHouseIsExpiredWithProjectId:(NSString *)projectId
+                               success:(void (^)(NetworkModel *model))success
+                                  fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",projectId] forKey:@"linkProjectInfoIds"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetHouseIsExpired paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 热门项目接口 */
++ (void)getHotHouses:(void (^)(NetworkModel *model))success
+                fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetHotHouses paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 我的钱包 */
++ (void)myWallet:(void (^)(NetworkModel *model))success
+            fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_MyWallet paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 收入记录 */
++ (void)myIncomeLogWithIncomeType:(NSString *)incomeType
+                          success:(void (^)(NetworkModel *model))success
+                             fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",incomeType] forKey:@"incomeType"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_MyIncomeLog paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 提现记录 */
++ (void)myWithdrawalsLog:(void (^)(NetworkModel *model))success
+                    fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_MyWithdrawalsLog paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 我的银行卡 */
++ (void)myBankCard:(void (^)(NetworkModel *model))success
+              fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_MyBankCard paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 银行卡类型 */
+//+ (void)getBankCardType:(void (^)(NetworkModel *model))success
+//                   fail:(void (^)(NSError *error))fail {
+//    
+//    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+//    
+//    [NetworkBase getRequestWithUrl:kNetwork_GetBankCardType paras:paras success:^(NetworkModel *model) {
+//        if (success) {
+//            success(model);
+//        }
+//    } fail:^(NSError *error) {
+//        if (fail) {
+//            fail(error);
+//        }
+//    }];
+//}
+
+
+
+/* 查询银行卡类型 */
++ (void)bankCardQueqyWithCardNo:(NSString *)cardNo
+                        success:(void (^)(NetworkModel *model))success
+                           fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",cardNo] forKey:@"cardNo"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_BankCardQuery paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+
+/* 添加银行卡 */
++ (void)addBankCardWithCaptcha:(NSString *)captcha
+                      cardType:(NSString *)cardType
+                        cardNo:(NSString *)cardNo
+                      userName:(NSString *)userName
+                         phone:(NSString *)phone
+                   openingBank:(NSString *)openingBank
+                       success:(void (^)(NetworkModel *model))success
+                          fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",captcha] forKey:@"captcha"];
+    [paras setValue:[NSString stringWithFormat:@"%@",cardType] forKey:@"cardType"];
+    [paras setValue:[NSString stringWithFormat:@"%@",cardNo] forKey:@"cardNo"];
+    [paras setValue:[NSString stringWithFormat:@"%@",userName] forKey:@"userName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",phone] forKey:@"phone"];
+    [paras setValue:[NSString stringWithFormat:@"%@",openingBank] forKey:@"openingBank"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_AddBankCard paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 提现申请 */
++ (void)applyWithdrawWithCaptcha:(NSString *)captcha
+                           phone:(NSString *)phone
+                           money:(NSString *)money
+                      bankCardId:(NSString *)bankCardId
+                         success:(void (^)(NetworkModel *model))success
+                            fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",captcha] forKey:@"captcha"];
+    [paras setValue:[NSString stringWithFormat:@"%@",phone] forKey:@"phone"];
+    [paras setValue:[NSString stringWithFormat:@"%@",money] forKey:@"money"];
+    [paras setValue:[NSString stringWithFormat:@"%@",bankCardId] forKey:@"bankCardId"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_ApplyWithdraw paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 团队负责人身份-团队业绩 */
++ (void)teamPerformance:(void (^)(NetworkModel *model))success
+                   fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_TeamPerformance paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 团队负责人身份-本月业绩和往期业绩 */
+//+ (void)teamIncomeLogWithUserEncrypt:(NSString *)userEncrypt
+//                       userPushToken:(NSString *)userPushToken
+//                               month:(NSString *)month
+//                             success:(void (^)(NetworkModel *model))success
+//                                fail:(void (^)(NSError *error))fail {
+//    
+//    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+//    [paras setValue:[NSString stringWithFormat:@"%@",userEncrypt] forKey:@"userEncrypt"];
+//    [paras setValue:[NSString stringWithFormat:@"%@",userPushToken] forKey:@"userPushToken"];
+//    [paras setValue:[NSString stringWithFormat:@"%@",month] forKey:@"month"];
+//    
+//    [NetworkBase getRequestWithUrl:kNetwork_TeamIncomeLog paras:paras success:^(NetworkModel *model) {
+//        if (success) {
+//            success(model);
+//        }
+//    } fail:^(NSError *error) {
+//        if (fail) {
+//            fail(error);
+//        }
+//    }];
+//}
+
+
+/* 团队负责人身份-提现记录 */
+//+ (void)teamWithdrawalsLogWithUserEncrypt:(NSString *)userEncrypt
+//                            userPushToken:(NSString *)userPushToken
+//                                  success:(void (^)(NetworkModel *model))success
+//                                     fail:(void (^)(NSError *error))fail {
+//    
+//    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+//    [paras setValue:userEncrypt forKey:@"userEncrypt"];
+//    [paras setValue:userPushToken forKey:@"userPushToken"];
+//    
+//    [NetworkBase getRequestWithUrl:kNetwork_TeamWithdrawalsLog paras:paras success:^(NetworkModel *model) {
+//        if (success) {
+//            success(model);
+//        }
+//    } fail:^(NSError *error) {
+//        if (fail) {
+//            fail(error);
+//        }
+//    }];
+//}
+
+
+/* 团队负责人身份-提现申请 */
+//+ (void)applyTeamWithdrawWithUserEncrypt:(NSString *)userEncrypt
+//                           userPushToken:(NSString *)userPushToken
+//                                 captcha:(NSString *)captcha
+//                                   phone:(NSString *)phone
+//                                   money:(NSString *)money
+//                                 success:(void (^)(NetworkModel *model))success
+//                                    fail:(void (^)(NSError *error))fail {
+//    
+//    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+//    [paras setValue:userEncrypt forKey:@"userEncrypt"];
+//    [paras setValue:userPushToken forKey:@"userPushToken"];
+//    [paras setValue:captcha forKey:@"captcha"];
+//    [paras setValue:phone forKey:@"phone"];
+//    [paras setValue:money forKey:@"money"];
+//    
+//    [NetworkBase getRequestWithUrl:kNetwork_ApplyTeamWithdraw paras:paras success:^(NetworkModel *model) {
+//        if (success) {
+//            success(model);
+//        }
+//    } fail:^(NSError *error) {
+//        if (fail) {
+//            fail(error);
+//        }
+//    }];
+//}
+
+
+/* 验证提现金额 */
++ (void)verifyWithDrawMoneyWithMoney:(NSString *)money
+                             success:(void (^)(NetworkModel *model))success
+                                fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",money] forKey:@"money"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_VerifyWithDrawMoney paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 支付宝提现申请 */
++ (void)applyAlipayWithdrawWithAlipayAccount:(NSString *)alipayAccount
+                                    realName:(NSString *)realName
+                                       money:(NSString *)money
+                                  bankCardId:(NSString *)bankCardId
+                             success:(void (^)(NetworkModel *model))success
+                                fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",alipayAccount] forKey:@"alipayAccount"];
+    [paras setValue:[NSString stringWithFormat:@"%@",realName] forKey:@"realName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",money] forKey:@"money"];
+    [paras setValue:[NSString stringWithFormat:@"%@",bankCardId] forKey:@"bankCardId"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_ApplyAlipayWithDraw paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 设置支付宝帐号 */
++ (void)setAlipayUserWithAlipayAccount:(NSString *)alipayAccount
+                              realName:(NSString *)realName
+                               success:(void (^)(NetworkModel *model))success
+                                  fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",alipayAccount] forKey:@"alipayAccount"];
+    [paras setValue:[NSString stringWithFormat:@"%@",realName] forKey:@"realName"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_SetAlipayUser paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 修改支付宝帐号 */
++ (void)updateAlipayUserWithAlipayAccount:(NSString *)alipayAccount
+                                 realName:(NSString *)realName
+                                  captcha:(NSString *)captcha
+                                  success:(void (^)(NetworkModel *model))success
+                                     fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",alipayAccount] forKey:@"alipayAccount"];
+    [paras setValue:[NSString stringWithFormat:@"%@",realName] forKey:@"realName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",captcha] forKey:@"captcha"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_UpdateAlipayUser paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 获取所有消息 */
+//+ (void)getMyMessagesWithUserEncrypt:(NSString *)userEncrypt
+//                       UserPushToken:(NSString *)userPushToken
+//                             success:(void (^)(NetworkModel *model))success
+//                                fail:(void (^)(NSError *error))fail {
+//    
+//    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+//    [paras setValue:[NSString stringWithFormat:@"%@",userEncrypt] forKey:@"userEncrypt"];
+//    [paras setValue:[NSString stringWithFormat:@"%@",userPushToken] forKey:@"userPushToken"];
+//    
+//    [NetworkBase getRequestWithUrl:kNetwork_GetMyMessages paras:paras success:^(NetworkModel *model) {
+//        if (success) {
+//            success(model);
+//        }
+//    } fail:^(NSError *error) {
+//        if (fail) {
+//            fail(error);
+//        }
+//    }];
+//}
+
+
+/* 删除对应消息 */
+//+ (void)deleteMessagesByIds:(NSString *)messageUserIds
+//                UserEncrypt:(NSString *)userEncrypt
+//              userPushToken:(NSString *)userPushToken
+//                    success:(void (^)(NetworkModel *model))success
+//                       fail:(void (^)(NSError *error))fail {
+//    
+//    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+//    [paras setValue:[NSString stringWithFormat:@"%@",messageUserIds] forKey:@"messageUserIds"];
+//    [paras setValue:[NSString stringWithFormat:@"%@",userEncrypt] forKey:@"userEncrypt"];
+//    [paras setValue:[NSString stringWithFormat:@"%@",userPushToken] forKey:@"userPushToken"];
+//    
+//    [NetworkBase getRequestWithUrl:kNetwork_DeleteMyMessages paras:paras success:^(NetworkModel *model) {
+//        if (success) {
+//            success(model);
+//        }
+//    } fail:^(NSError *error) {
+//        if (fail) {
+//            fail(error);
+//        }
+//    }];
+//}
+
+
+/* 消息中心(新版) */
++ (void)getMyLinkMessages:(void (^)(NetworkModel *model))success
+                     fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_getMyLinkMessages paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 已推荐客户统计（电商部身份），可搜索楼盘列表 */
++ (void)getMySearchableHouse:(void (^)(NetworkModel *model))success
+                        fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetMySearchableHouse paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 我的客户 */
++ (void)getAllMyCustomerWithPage:(NSString *)page
+                        pageSize:(NSString *)pageSize
+                            time:(NSString *)time
+                         content:(NSString *)content
+                          status:(NSString *)status
+                     checkStatus:(NSString *)checkStatus
+                         success:(void (^)(NetworkModel *model))success
+                            fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",page] forKey:@"page"];
+    [paras setValue:[NSString stringWithFormat:@"%@",pageSize] forKey:@"pageSize"];
+    [paras setValue:[NSString stringWithFormat:@"%@",time] forKey:@"time"];
+    [paras setValue:[NSString stringWithFormat:@"%@",content] forKey:@"content"];
+    [paras setValue:[NSString stringWithFormat:@"%@",status] forKey:@"status"];
+    [paras setValue:[NSString stringWithFormat:@"%@",checkStatus] forKey:@"checkStatus"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetAllMyCustomer paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 我推荐的客户统计 */
+//+ (void)myClientStatisticsWithUserEncrypt:(NSString *)userEncrypt
+//                            userPushToken:(NSString *)userPushToken
+//                                  success:(void (^)(NetworkModel *model))success
+//                                     fail:(void (^)(NSError *error))fail {
+//    
+//    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+//    [paras setValue:[NSString stringWithFormat:@"%@",userEncrypt] forKey:@"userEncrypt"];
+//    [paras setValue:[NSString stringWithFormat:@"%@",userPushToken] forKey:@"userPushToken"];
+//    
+//    [NetworkBase getRequestWithUrl:kNetwork_MyClientStatistics paras:paras success:^(NetworkModel *model) {
+//        if (success) {
+//            success(model);
+//        }
+//    } fail:^(NSError *error) {
+//        if (fail) {
+//            fail(error);
+//        }
+//    }];
+//}
+
+
+/* 本月业绩-合作伙伴负责人 */
++ (NSURLRequest *)achievementsCurMonth {
+    
+    return [NetworkBase getH5Request:kNetwork_AchievementsCurMonth withParas:nil];
+}
+
+
+/* 往期业绩-合作伙伴负责人 */
++ (NSURLRequest *)achievementsYesarMonthWithYearMonth:(NSString *)yearMonth {
+    
+    NSString *paras = [NSString stringWithFormat:@"&yearMonth=%@",[NSString stringWithFormat:@"%@",yearMonth]];
+    
+    return [NetworkBase getH5Request:kNetwork_AchievementsYesarMonth withParas:paras];
+}
+
+
+/* 已推荐客户统计-合作伙伴负责人身份 */
++ (NSURLRequest *)statForPartnerWithInviteNo:(NSString *)inviteNo
+                                   startDate:(NSString *)startDate
+                                     endDate:(NSString *)endDate
+                                    checkAll:(NSString *)checkAll
+                                    realName:(NSString *)realName {
+
+    NSString *paras = [NSString stringWithFormat:@"&inviteNo=%@",[NSString stringWithFormat:@"%@",inviteNo]];
+    paras = [paras stringByAppendingString:[NSString stringWithFormat:@"&startDate=%@",[NSString stringWithFormat:@"%@",startDate]]];
+    paras = [paras stringByAppendingString:[NSString stringWithFormat:@"&endDate=%@",[NSString stringWithFormat:@"%@",endDate]]];
+    paras = [paras stringByAppendingString:[NSString stringWithFormat:@"&checkAll=%@",[NSString stringWithFormat:@"%@",checkAll]]];
+    paras = [paras stringByAppendingString:[NSString stringWithFormat:@"&realName=%@",[NSString stringWithFormat:@"%@",realName]]];
+    
+    return [NetworkBase getH5Request:kNetwork_StatForPartner withParas:paras];
+}
+
+
+/* 已推荐客户统计-电商部身份 */
++ (NSURLRequest *)statForPartnerWithProjectIds:(NSString *)projectIds
+                                     startDate:(NSString *)startDate
+                                       endDate:(NSString *)endDate {
+
+    NSString *paras = [NSString stringWithFormat:@"&startDate=%@",[NSString stringWithFormat:@"%@",startDate]];
+    paras = [paras stringByAppendingString:[NSString stringWithFormat:@"&endDate=%@",[NSString stringWithFormat:@"%@",endDate]]];
+    paras = [paras stringByAppendingString:[NSString stringWithFormat:@"&projectIds=%@",[NSString stringWithFormat:@"%@",projectIds]]];
+    
+    return [NetworkBase getH5Request:kNetwork_StatForCustomer withParas:paras];
+}
+
+
+/* 已推荐客户接口 - 已推荐列表 */
++ (void)getLkinkCustomerWithTimeStamp:(NSString *)timestamp
+                                 page:(NSString *)page
+                             pageSize:(NSString *)pageSize
+                            houseName:(NSString *)houseName
+                          checkStatus:(NSString *)checkStatus
+                               status:(NSString *)status
+                        customerPhone:(NSString *)customerPhone
+                         customerName:(NSString *)customerName
+                     referrerRealName:(NSString *)referrerRealName
+                    referrerRealPhone:(NSString *)referrerRealPhone
+                  contractCompanyName:(NSString *)contractCompanyName
+                        showDateBegin:(NSString *)showDateBegin
+                          showDateEnd:(NSString *)showDateEnd
+                              success:(void (^)(NetworkModel *model))success
+                                 fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",timestamp] forKey:@"timestamp"];
+    [paras setValue:[NSString stringWithFormat:@"%@",page] forKey:@"page"];
+    [paras setValue:[NSString stringWithFormat:@"%@",pageSize] forKey:@"Pagesize"];
+    [paras setValue:[NSString stringWithFormat:@"%@",houseName] forKey:@"houseName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",checkStatus] forKey:@"checkStatus"];
+    [paras setValue:[NSString stringWithFormat:@"%@",status] forKey:@"status"];
+    [paras setValue:[NSString stringWithFormat:@"%@",customerPhone] forKey:@"customerPhone"];
+    [paras setValue:[NSString stringWithFormat:@"%@",customerName] forKey:@"customerName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",referrerRealName] forKey:@"referrerRealName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",referrerRealPhone] forKey:@"referrerRealPhone"];
+    [paras setValue:[NSString stringWithFormat:@"%@",contractCompanyName] forKey:@"contractCompanyName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",showDateBegin] forKey:@"showDateBegin"];
+    [paras setValue:[NSString stringWithFormat:@"%@",showDateEnd] forKey:@"showDateEnd"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetLkinkCustomer paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 已推荐客户接口 - 推荐详情 */
++ (void)getCusProjectInfoWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                           success:(void (^)(NetworkModel *model))success
+                                              fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",linkCustomerProjectId] forKey:@"linkCustomerProjectId"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetCusProjectInfo paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 已推荐客户接口 - 查看状态 */
++ (void)getCusProjectLogWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                          success:(void (^)(NetworkModel *model))success
+                                             fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",linkCustomerProjectId] forKey:@"linkCustomerProjectId"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetCusProjectLog paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 已推荐客户接口 - 修改已推荐用户审核状态 */
++ (void)updateLinkCustomerProjectCheckStatusWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                                          checkStatus:(NSString *)checkStatus
+                                                               remark:(NSString *)remark
+                                                            isRetrial:(NSString *)isRetrial
+                                                              success:(void (^)(NetworkModel *model))success
+                                                                 fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",linkCustomerProjectId] forKey:@"linkCustomerProjectId"];
+    [paras setValue:[NSString stringWithFormat:@"%@",checkStatus] forKey:@"checkStatus"];
+    [paras setValue:[NSString stringWithFormat:@"%@",remark] forKey:@"remark"];
+    [paras setValue:[NSString stringWithFormat:@"%@",isRetrial] forKey:@"isRetrial"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_UpdateLinkCustomerProjectCheckStatus paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 已推荐客户接口 - 修改已推荐用户确认到访 */
++ (void)updateLinkCustomerProjectAffirmWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                            localeReceptionSales:(NSString *)localeReceptionSales
+                                                         success:(void (^)(NetworkModel *model))success
+                                                            fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",linkCustomerProjectId] forKey:@"linkCustomerProjectId"];
+    [paras setValue:[NSString stringWithFormat:@"%@",localeReceptionSales] forKey:@"localeReceptionSales"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_UpdateLinkCustomerProjectAffirm paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 已推荐客户接口 - 修改已推荐用户确认成立 */
++ (void)updateLinkCustomerProjectDealWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                                      dealCell:(NSString *)dealCell
+                                                      dealDate:(NSString *)dealDate
+                                                    dealSquare:(NSString *)dealSquare
+                                                     dealTotal:(NSString *)dealTotal
+                                           confirmDealUserName:(NSString *)confirmDealUserName
+                                          confirmDealUserPhone:(NSString *)confirmDealUserPhone
+                                                    commission:(NSString *)commission
+                                                       success:(void (^)(NetworkModel *model))success
+                                                          fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",linkCustomerProjectId] forKey:@"linkCustomerProjectId"];
+    [paras setValue:[NSString stringWithFormat:@"%@",dealCell] forKey:@"dealCell"];
+    [paras setValue:[NSString stringWithFormat:@"%@",dealDate] forKey:@"dealDate"];
+    [paras setValue:[NSString stringWithFormat:@"%@",dealSquare] forKey:@"dealSquare"];
+    [paras setValue:[NSString stringWithFormat:@"%@",dealTotal] forKey:@"dealTotal"];
+    [paras setValue:[NSString stringWithFormat:@"%@",confirmDealUserName] forKey:@"confirmDealUserName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",confirmDealUserPhone] forKey:@"confirmDealUserPhone"];
+    [paras setValue:[NSString stringWithFormat:@"%@",commission] forKey:@"commission"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_UpdateLinkCustomerProjectDeal paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 已推荐客户接口 - 查看成交信息 */
++ (void)getCusProjectDealMessageWithLinkCustomerProjectId:(NSString *)linkCustomerProjectId
+                                                  success:(void (^)(NetworkModel *model))success
+                                                     fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",linkCustomerProjectId] forKey:@"linkCustomerProjectId"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetCusProjectDealMessage paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 导出已推荐客户 - 已推荐列表 */
++ (void)exportDataWithHouseName:(NSString *)houseName
+                    checkStatus:(NSString *)checkStatus
+                         status:(NSString *)status
+                  customerPhone:(NSString *)customerPhone
+                   customerName:(NSString *)customerName
+               referrerRealName:(NSString *)referrerRealName
+              referrerRealPhone:(NSString *)referrerRealPhone
+            contractCompanyName:(NSString *)contractCompanyName
+                  showDateBegin:(NSString *)showDateBegin
+                    showDateEnd:(NSString *)showDateEnd
+                        success:(void (^)(NetworkModel *model))success
+                           fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",houseName] forKey:@"houseName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",checkStatus] forKey:@"checkStatus"];
+    [paras setValue:[NSString stringWithFormat:@"%@",status] forKey:@"status"];
+    [paras setValue:[NSString stringWithFormat:@"%@",customerPhone] forKey:@"customerPhone"];
+    [paras setValue:[NSString stringWithFormat:@"%@",customerName] forKey:@"customerName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",referrerRealName] forKey:@"referrerRealName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",referrerRealPhone] forKey:@"referrerRealPhone"];
+    [paras setValue:[NSString stringWithFormat:@"%@",contractCompanyName] forKey:@"contractCompanyName"];
+    [paras setValue:[NSString stringWithFormat:@"%@",showDateBegin] forKey:@"showDateBegin"];
+    [paras setValue:[NSString stringWithFormat:@"%@",showDateEnd] forKey:@"showDateEnd"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_ExportData paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 获取用户权限 */
++ (void)getJurisdiction:(void (^)(NetworkModel *model))success
+                   fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetJurisdiction paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 是否隐藏用户注册 */
++ (void)isShowRegister:(void (^)(NetworkModel *model))success
+                  fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_IsShowRegister paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+
+/* 地图接口 */
++ (void)getHouseListForMapWithContent:(NSString *)content
+                              success:(void (^)(NetworkModel *model))success
+                                 fail:(void (^)(NSError *error))fail {
+    
+    NSMutableDictionary *paras = [[NSMutableDictionary alloc]init];
+    [paras setValue:[NSString stringWithFormat:@"%@",content] forKey:@"content"];
+    
+    [NetworkBase getRequestWithUrl:kNetwork_GetHouseListForMap paras:paras success:^(NetworkModel *model) {
+        if (success) {
+            success(model);
+        }
+    } fail:^(NSError *error) {
+        if (fail) {
+            fail(error);
+        }
+    }];
+}
+
+@end
+
